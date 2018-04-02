@@ -250,6 +250,7 @@ public class MainWindow extends AppCompatActivity
                     intent.putExtra("group", selectedWorker.getGroup());
                     intent.putExtra("company", selectedWorker.getCompany());
                     startActivityForResult(intent, REQUEST_WORKER);
+                    selectedWorker = null;
                 }
                 else
                 {
@@ -268,6 +269,7 @@ public class MainWindow extends AppCompatActivity
                     if (db.deleteWorkerFromDb(selectedWorker)) {
                         workersBase.deleteWorker(selectedWorker);
                         updateDataInWorkersList(workersBase.getListWorkers());
+                        selectedWorker = null;
                     }
                 }
                 else
