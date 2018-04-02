@@ -3,6 +3,9 @@ package com.redstar.infosystem;
 
 import java.util.ArrayList;
 
+/**
+ * Workers info holder
+ */
 public class WorkersBase {
 
     private ArrayList<Worker> listWorkers = new ArrayList<>();
@@ -27,11 +30,37 @@ public class WorkersBase {
         return listWorkers.add(objWorker);
     }
 
+    /**
+     * Adds worker in list
+     *
+     * @param id Worker's id
+     * @param name worker's new name
+     * @param surname worker's new surname
+     * @param patronymic worker's new patronymic
+     * @param age worker's new age
+     * @param post worker's new post
+     * @param group worker's new group
+     * @param company worker's new company
+     * @return true if success and false otherwise
+     */
     public boolean addWorker(int id, String name, String surname, String patronymic, int age, String post, String group, String company)
     {
         return listWorkers.add(new Worker(id, name, surname, patronymic, age, post, group, company));
     }
 
+    /**
+     * Replaces worker's info with inputted data
+     *
+     * @param objWorker Worker's object to edit
+     * @param name worker's new name
+     * @param surname worker's new surname
+     * @param patronymic worker's new patronymic
+     * @param age worker's new age
+     * @param post worker's new post
+     * @param group worker's new group
+     * @param company worker's new company
+     * @return true if success
+     */
     public boolean editWorker(Worker objWorker, String name, String surname, String patronymic, int age, String post, String group, String company)
     {
         if (!name.isEmpty()) objWorker.setName(name);
@@ -43,11 +72,29 @@ public class WorkersBase {
         return true;
     }
 
+    /**
+     * Deletes worker from list by object
+     *
+     * @param objWorker worker's object to delete
+     * @return true if success and false otherwise
+     */
     public boolean deleteWorker(Worker objWorker)
     {
         return listWorkers.remove(objWorker);
     }
 
+    /**
+     * Find workers by info
+     *
+     * @param name worker's new name
+     * @param surname worker's new surname
+     * @param patronymic worker's new patronymic
+     * @param age worker's new age
+     * @param post worker's new post
+     * @param group worker's new group
+     * @param company worker's new company
+     * @return list of workers which data matched with inputted data
+     */
     public ArrayList<Worker> findWorkers(String name, String surname, String patronymic, int age, String post, String group, String company)
     {
         ArrayList<Worker> finded = new ArrayList<>();
@@ -110,6 +157,9 @@ public class WorkersBase {
         return finded;
     }
 
+    /**
+     * Clears workers list
+     */
     public void clearBase()
     {
         listWorkers.clear();

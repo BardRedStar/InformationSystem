@@ -20,28 +20,34 @@ public class InfoUserWindow extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_user_window);
+        ///Get window mode
         Bundle extras = getIntent().getExtras();
         mode = extras.getInt("mode");
         if (mode == 1)
         {
+            /// Prepare window for adding user
             setTitle("Add User");
             Button button = (Button) findViewById(R.id.infouserwindow_button);
             button.setText("Add");
             Spinner spinner = (Spinner) findViewById(R.id.permissionSpinner);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, new String[]{"User", "Employee", "Admin"});
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item,
+                    new String[]{"User", "Employee", "Admin"});
             spinner.setAdapter(adapter);
         }
         else if (mode == 2)
         {
+            /// Prepare window for finding user
             setTitle("Find User");
             Button button = (Button) findViewById(R.id.infouserwindow_button);
             button.setText("Find");
             Spinner spinner = (Spinner) findViewById(R.id.permissionSpinner);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, new String[]{"All", "User", "Employee", "Admin"});
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item,
+                    new String[]{"All", "User", "Employee", "Admin"});
             spinner.setAdapter(adapter);
         }
         else if (mode == 3)
         {
+            /// Prepare window for editing user
             setTitle("Edit User");
             Button button = (Button) findViewById(R.id.infouserwindow_button);
             button.setText("Edit");
@@ -57,7 +63,8 @@ public class InfoUserWindow extends AppCompatActivity {
             textView.setText(password);
 
             Spinner spinner = (Spinner) findViewById(R.id.permissionSpinner);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, new String[]{"User", "Employee", "Admin"});
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item,
+                    new String[]{"User", "Employee", "Admin"});
             spinner.setAdapter(adapter);
             spinner.setSelection(permission-1);
         }
@@ -69,6 +76,7 @@ public class InfoUserWindow extends AppCompatActivity {
         }
     }
 
+    /// When final button clicked, get all data from fields and throw it back to main activity
     public void onClick(View view) {
         EditText textBox;
 
@@ -78,7 +86,8 @@ public class InfoUserWindow extends AppCompatActivity {
 
         if (login.equals("") && mode != 2)
         {
-            Toast.makeText(this, "Wrong input! Fill all fields!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Wrong input! Fill all fields!", Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
@@ -86,7 +95,8 @@ public class InfoUserWindow extends AppCompatActivity {
         String password = textBox.getText().toString();
         if (password.equals("") && mode != 2)
         {
-            Toast.makeText(this, "Wrong input! Fill all fields!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Wrong input! Fill all fields!", Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
@@ -98,6 +108,7 @@ public class InfoUserWindow extends AppCompatActivity {
         else if (perm.equals("Employee")) permission = 2;
         else if (perm.equals("Admin")) permission = 3;
 
+        //Box data and throw to activity
         Intent data = new Intent();
         data.putExtra("mode", mode);
         data.putExtra("login", login);

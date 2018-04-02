@@ -1,13 +1,10 @@
 package com.redstar.infosystem;
 
-import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -35,8 +32,11 @@ public class MainWindow extends AppCompatActivity
     private User selectedUser = null;
     private int permission = 0;
 
+    ///Request types
     private static final int REQUEST_WORKER = 1;
     private static final int REQUEST_USER = 2;
+
+    //Tag for log messages
     private static final String LOG_TAG = "MainWindow";
 
 
@@ -45,15 +45,19 @@ public class MainWindow extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_window);
 
+        /// Get user permission
         Bundle extra = getIntent().getExtras();
         permission = extra.getInt("permission");
 
+        /// Set up navigation menu and toolbar
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         toolbar.setTitle("Information System");
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -62,6 +66,8 @@ public class MainWindow extends AppCompatActivity
         drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerOpened(View drawerView) {
+
+                /// Draw drawer (lol) by user's permission value
                 TextView tw = (TextView) findViewById(R.id.nav_textview);
 
                 if (permission == 1)
@@ -97,8 +103,10 @@ public class MainWindow extends AppCompatActivity
             public void onDrawerSlide(View drawerView, float slideOffset) {}
         });
 
+        /// Initialize DB Helper
         db = new InfoSystemDbHelper(this);
 
+        /// Initialize Tabs
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
         tabHost.setup();
 
@@ -107,6 +115,7 @@ public class MainWindow extends AppCompatActivity
         tabSpec.setIndicator("Workers");
         tabHost.addTab(tabSpec);
 
+        /// Update data in lists and bind context menu for them
         workersBase = new WorkersBase();
         db.getWorkersFromDatabase(workersBase);
         updateDataInWorkersList(workersBase.getListWorkers());
@@ -122,12 +131,13 @@ public class MainWindow extends AppCompatActivity
             tabSpec.setContent(R.id.listUsers);
             tabSpec.setIndicator("Users");
             tabHost.addTab(tabSpec);
-
+            registerForContextMenu(findViewById(R.id.expWorkersListView));
             registerForContextMenu(findViewById(R.id.expUsersListView));
         }
         tabHost.setCurrentTab(0);
     }
 
+    /// Close database connection when app is stopped
     @Override
     protected void onStop()
     {
@@ -135,6 +145,7 @@ public class MainWindow extends AppCompatActivity
         super.onStop();
     }
 
+    /// Close database connection when app is destroyed
     @Override
     protected void onDestroy()
     {
@@ -142,12 +153,20 @@ public class MainWindow extends AppCompatActivity
         super.onDestroy();
     }
 
+    /**
+     * Updates data in list with {@link Worker workers} info.
+     *
+     * @param workersList list with new information about workers
+     */
     private void updateDataInWorkersList(ArrayList<Worker> workersList)
     {
+        /// Set adapter with new list to ExpandableListView
         ExpandableListView listView = (ExpandableListView) findViewById(R.id.expWorkersListView);
-        ExpListAdapter adapter = new ExpListAdapter(this, R.layout.explistview_group, R.layout.explistviewworkers_child, workersList);
+        ExpListAdapter adapter = new ExpListAdapter(this, R.layout.explistview_group,
+                R.layout.explistviewworkers_child, workersList);
         listView.setAdapter(adapter);
 
+        /// If item has been longclicked, remember position for context menu
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -157,13 +176,21 @@ public class MainWindow extends AppCompatActivity
         });
     }
 
+    /**
+     * Updates data in list with {@link User users} info.
+     *
+     * @param usersList list with new information about workers
+     */
     private void updateDataInUsersList(ArrayList<User> usersList)
     {
+        /// Set adapter with new list to ExpandableListView
         ExpandableListView listView = (ExpandableListView) findViewById(R.id.expUsersListView);
 
-        ExpListAdapter adapter = new ExpListAdapter(usersList, this, R.layout.explistview_group, R.layout.explistviewusers_child);
+        ExpListAdapter adapter = new ExpListAdapter(usersList, this,
+                R.layout.explistview_group, R.layout.explistviewusers_child);
         listView.setAdapter(adapter);
 
+        /// If item has been longclicked, remember position for context menu
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -173,6 +200,7 @@ public class MainWindow extends AppCompatActivity
         });
     }
 
+    /// On device back button has been pressed, close drawer if it was opened.
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -183,13 +211,14 @@ public class MainWindow extends AppCompatActivity
         }
     }
 
+    /// Inflate options menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main_window_drawer, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
-
+    /// Inflate Context menu
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
     {
@@ -197,6 +226,12 @@ public class MainWindow extends AppCompatActivity
         getMenuInflater().inflate(R.menu.context_menu, menu);
     }
 
+    /**
+     * Called when item has been selected.
+     *
+     * @param item Menu item which has been selected
+     * @return true, if item has been selected and false otherwise.
+     */
     @Override
     public boolean onContextItemSelected(MenuItem item)
     {
@@ -249,6 +284,12 @@ public class MainWindow extends AppCompatActivity
         return true;
     }
 
+    /**
+     * On any item from Navigation menu has been selected
+     *
+     * @param item Menu item which has been selected
+     * @return true, if item has been selected and false otherwise.
+     */
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -275,6 +316,13 @@ public class MainWindow extends AppCompatActivity
         return true;
     }
 
+    /**
+     * On called activity finished with result.
+     *
+     * @param requestCode Request identifier
+     * @param resultCode Result identifier
+     * @param data Transfered data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -302,7 +350,8 @@ public class MainWindow extends AppCompatActivity
 
                 if (mode == 1)
                 {
-                    Worker objWorker = db.addWorkerInDb(new Worker(0, name, surname, patronymic, age, post, group, company));
+                    Worker objWorker = db.addWorkerInDb(new Worker(0, name, surname, patronymic,
+                            age, post, group, company));
                     if (objWorker != null)
                     {
                         workersBase.addWorker(objWorker);
@@ -311,13 +360,15 @@ public class MainWindow extends AppCompatActivity
                 }
                 else if (mode == 2)
                 {
-                    if (name.isEmpty() && surname.isEmpty() && patronymic.isEmpty() && age == 0 && post.isEmpty() && group.isEmpty() && company.isEmpty())
+                    if (name.isEmpty() && surname.isEmpty() && patronymic.isEmpty() && age == 0
+                            && post.isEmpty() && group.isEmpty() && company.isEmpty())
                     {
                         updateDataInWorkersList(workersBase.getListWorkers());
                         return;
                     }
 
-                    updateDataInWorkersList(workersBase.findWorkers(name, surname, patronymic, age, post, group, company));
+                    updateDataInWorkersList(workersBase.findWorkers(name, surname, patronymic, age,
+                            post, group, company));
                 }
                 else if (mode == 3)
                 {
@@ -388,6 +439,11 @@ public class MainWindow extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * On search button has been clicked
+     *
+     * @param view context view
+     */
     public void onFabClick(View view)
     {
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
@@ -395,6 +451,7 @@ public class MainWindow extends AppCompatActivity
         {
             case 0:
             {
+                /// If we clicked on button on Workers tab, call workers search activity
                 Intent intent = new Intent(this, InfoWorkerWindow.class);
                 intent.putExtra("mode", 2);
                 startActivityForResult(intent, REQUEST_WORKER);
@@ -402,6 +459,7 @@ public class MainWindow extends AppCompatActivity
             }
             case 1:
             {
+                /// If we clicked on button on Users tab, call users search activity
                 Intent intent = new Intent(this, InfoUserWindow.class);
                 intent.putExtra("mode", 2);
                 startActivityForResult(intent, REQUEST_USER);

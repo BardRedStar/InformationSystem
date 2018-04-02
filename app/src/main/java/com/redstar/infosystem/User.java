@@ -1,10 +1,17 @@
 package com.redstar.infosystem;
 
+/**
+ * User Data
+ */
 public class User {
-    //0 - nobody
-    //1 - user
-    //2 - employee
-    //3 - admin
+
+    /**
+     * Permissions codes:
+     * 0 - nobody
+     * 1 - user
+     * 2 - employee
+     * 3 - admin
+    */
     private int id;
     private String login;
     private String password;

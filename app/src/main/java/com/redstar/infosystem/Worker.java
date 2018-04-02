@@ -1,6 +1,8 @@
 package com.redstar.infosystem;
 
-
+/**
+ * Worker's info
+ */
 public class Worker {
     private int id;
     private String name;

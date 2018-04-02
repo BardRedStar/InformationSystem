@@ -27,6 +27,14 @@ public class UsersBase {
 
     public int getUsersCount() {return listUsers.size();}
 
+    /**
+     * Finds User in current users list
+     *
+     * @param log user's login
+     * @param pass user's password
+     * @param perm user's permission
+     * @return List of users matched inputted params
+     */
     public ArrayList<User> findUser(String log, String pass, int perm)
     {
         ArrayList<User> finded = new ArrayList<>();
@@ -72,6 +80,9 @@ public class UsersBase {
         return finded;
     }
 
+    /**
+     * Clears users list
+     */
     public void clearBase()
     {
         listUsers.clear();

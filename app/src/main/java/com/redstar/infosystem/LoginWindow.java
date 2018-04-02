@@ -18,9 +18,11 @@ public class LoginWindow extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_window);
 
+        /// Connect to DB
         db = new InfoSystemDbHelper(this);
     }
 
+    /// Get all data from fields and check it in DB
     public void onClick(View view) {
 
         EditText textBox = (EditText) findViewById(R.id.loginBox);
@@ -49,6 +51,7 @@ public class LoginWindow extends AppCompatActivity {
         else Toast.makeText(this, "Incorrect input!", Toast.LENGTH_LONG).show();
     }
 
+    /// If activity has been destroyed, close DB connection
     @Override
     protected void onDestroy()
     {

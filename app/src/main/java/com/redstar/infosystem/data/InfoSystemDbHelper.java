@@ -22,30 +22,30 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
 
     private SQLiteDatabase db;
     /**
-     * Имя файла базы данных
+     * DB file name
      */
     private static final String DATABASE_NAME = "infosystem.db";
 
     /**
-     * Версия базы данных. При изменении схемы увеличить на единицу
+     * DB version. Increase it by 1 if you changed something.
      */
     private static final int DATABASE_VERSION = 3;
 
     /**
-     * Конструктор {@link InfoSystemDbHelper}.
+     * Constructor of {@link InfoSystemDbHelper}.
      *
-     * @param context Контекст приложения
+     * @param context app context
      */
     public InfoSystemDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     /**
-     * Вызывается при создании базы данных
+     * Calls on DB create
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Строка для создания таблицы
+        // Create workers table
         String SQL_CREATE_WORKERS_TABLE = "CREATE TABLE IF NOT EXISTS `" + InfoSystemContract.WorkersEntry.TABLE_NAME + "` (`"
                 + InfoSystemContract.WorkersEntry._ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
                 + InfoSystemContract.WorkersEntry.COLUMN_NAME + "` TEXT, `"
@@ -57,10 +57,10 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
                 + InfoSystemContract.WorkersEntry.COLUMN_COMPANY + "` TEXT)";
 
 
-        // Запускаем создание таблицы
+        // Execute table creating
         db.execSQL(SQL_CREATE_WORKERS_TABLE);
 
-        // Строка для создания таблицы
+        // Create users table
         String SQL_CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS `" + InfoSystemContract.UsersEntry.TABLE_NAME + "` (`"
                 + InfoSystemContract.UsersEntry._ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
                 + InfoSystemContract.UsersEntry.COLUMN_LOGIN + "` TEXT, `"
@@ -68,35 +68,43 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
                 + InfoSystemContract.UsersEntry.COLUMN_PERMISSION + "` INTEGER)";
 
 
-        // Запускаем создание таблицы
+        // Execute table creating
         db.execSQL(SQL_CREATE_USERS_TABLE);
     }
 
     /**
-     * Вызывается при обновлении схемы базы данных
+     * Calls on DB upgrades version
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Запишем в журнал
+        // Note in journal
         Log.w(LOG_TAG, "Обновляемся с версии " + oldVersion + " на версию " + newVersion);
 
-        // Удаляем старую таблицу и создаём новую
+        // Delete old table and create new
         db.execSQL("DROP TABLE IF EXISTS " + InfoSystemContract.WorkersEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + InfoSystemContract.UsersEntry.TABLE_NAME);
-        // Создаём новую таблицу
+        // Create new
         onCreate(db);
     }
 
+    /**
+     * Checks user in database by it's login and password
+     *
+     * @param login user's login
+     * @param password user's password
+     * @return Permission value of user and 0 if user was not found.
+     */
     public int checkUserInDatabase(String login, String password)
     {
         db = getReadableDatabase();
-
+        /// Create query
         Cursor cursor = db.rawQuery("SELECT `" + InfoSystemContract.UsersEntry.COLUMN_PERMISSION
                 + "` FROM " + InfoSystemContract.UsersEntry.TABLE_NAME
                 + " WHERE (`" + InfoSystemContract.UsersEntry.COLUMN_LOGIN +"` = \'"
                 + login + "\' AND `" + InfoSystemContract.UsersEntry.COLUMN_PASSWORD + "` = \'"
                 + password + "\');", null);
 
+        /// Parse answer
         if (cursor.moveToFirst())
         {
             int perm = cursor.getInt(cursor.getColumnIndex(InfoSystemContract.UsersEntry.COLUMN_PERMISSION));
@@ -110,20 +118,28 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Gets all users from DB and put them to {@link UsersBase users base object}
+     *
+     * @param usersBase Users base object to put data in
+     */
     public void getUsersFromDatabase(UsersBase usersBase)
     {
         db = getReadableDatabase();
-
+        /// Create query
         Cursor cursor = db.rawQuery("SELECT * FROM " + InfoSystemContract.UsersEntry.TABLE_NAME + ";", null);
 
+        /// Parse answer
         if (cursor.moveToFirst())
         {
+            /// Clear users base
             usersBase.clearBase();
             int id = cursor.getColumnIndex(InfoSystemContract.UsersEntry._ID);
             int loginId = cursor.getColumnIndex(InfoSystemContract.UsersEntry.COLUMN_LOGIN);
             int passwordId = cursor.getColumnIndex(InfoSystemContract.UsersEntry.COLUMN_PASSWORD);
             int permissionId = cursor.getColumnIndex(InfoSystemContract.UsersEntry.COLUMN_PERMISSION);
 
+            /// Parse all rows of answer
             do {
                 usersBase.addUser(new User(cursor.getInt(id),
                         cursor.getString(loginId),
@@ -135,15 +151,22 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
         cursor.close();
     }
 
+    /**
+     * Adds {@link User user} in DB
+     *
+     * @param user {@link User User's object}
+     * @return User's object with ID or null if error was occurred.
+     */
     public User addUserInDb(User user){
 
+        /// Pur data in holder
         db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(InfoSystemContract.UsersEntry.COLUMN_LOGIN, user.getLogin());
         cv.put(InfoSystemContract.UsersEntry.COLUMN_PASSWORD, user.getPassword());
         cv.put(InfoSystemContract.UsersEntry.COLUMN_PERMISSION, String.valueOf(user.getPermission()));
 
-
+        /// Process query
         long id = db.insert(InfoSystemContract.UsersEntry.TABLE_NAME, null, cv);
         if (id > 0) {
 
@@ -153,6 +176,12 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
         else return null;
     }
 
+    /**
+     * Updates {@link User user} in DB.
+     *
+     * @param user {@link User User's object}
+     * @return true if success and false otherwise.
+     */
     public boolean updateUserInDb(User user){
         db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -165,18 +194,31 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Removes {@link User user} from DB.
+     *
+     * @param user {@link User User's object}
+     * @return true if success and false otherwise.
+     */
     public boolean deleteUserFromDb(User user){
         db = getWritableDatabase();
         long id = db.delete(InfoSystemContract.UsersEntry.TABLE_NAME, "_id = ?", new String[]{String.valueOf(user.getId())});
         return (id > 0);
     }
 
+    /**
+     * Gets all workers from DB and put them to {@link WorkersBase workers base object}
+     *
+     * @param workersBase Workers base object to put data in
+     */
     public void getWorkersFromDatabase(WorkersBase workersBase)
     {
         db = getReadableDatabase();
 
+        /// Prepare query
         Cursor cursor = db.rawQuery("SELECT * FROM " + InfoSystemContract.WorkersEntry.TABLE_NAME + ";", null);
 
+        /// Parse answer
         if (cursor.moveToFirst())
         {
             workersBase.clearBase();
@@ -204,6 +246,12 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
         cursor.close();
     }
 
+    /**
+     * Adds {@link Worker worker} in DB
+     *
+     * @param worker {@link Worker Worker's object}
+     * @return Worker's object with ID or null if error was occurred.
+     */
     public Worker addWorkerInDb(Worker worker){
 
         db = getWritableDatabase();
@@ -225,6 +273,12 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
         else return null;
     }
 
+    /**
+     * Updates {@link Worker worker} in DB
+     *
+     * @param worker {@link Worker Worker's object}
+     * @return Worker's object with ID or null if error was occurred.
+     */
     public boolean updateWorkerInDb(Worker worker){
         db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -240,12 +294,21 @@ public class InfoSystemDbHelper extends SQLiteOpenHelper {
         return (id > 0);
     }
 
+    /**
+     * Removes {@link Worker worker} from DB
+     *
+     * @param worker {@link Worker Worker's object}
+     * @return Worker's object with ID or null if error was occurred.
+     */
     public boolean deleteWorkerFromDb(Worker worker){
         db = getWritableDatabase();
         long id = db.delete(InfoSystemContract.WorkersEntry.TABLE_NAME, "_id = ?", new String[]{String.valueOf(worker.getId())});
         return (id > 0);
     }
 
+    /**
+     * Closes Database connection
+     */
     public void closeDatabase()
     {
         db.close();

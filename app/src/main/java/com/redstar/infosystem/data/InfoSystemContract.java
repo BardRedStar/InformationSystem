@@ -2,9 +2,12 @@ package com.redstar.infosystem.data;
 
 import android.provider.BaseColumns;
 
+/**
+ * Common DB Contract. Table and column names, no more.
+ */
 public final class InfoSystemContract {
     private InfoSystemContract() {
-    };
+    }
 
     public static final class WorkersEntry implements BaseColumns {
         public final static String TABLE_NAME = "workers";

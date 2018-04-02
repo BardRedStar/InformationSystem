@@ -26,17 +26,20 @@ public class InfoWorkerWindow extends AppCompatActivity {
         mode = extras.getInt("mode");
         if (mode == 1)
         {
+            /// Prepare window for adding worker
             Button button = (Button) findViewById(R.id.infoworkerwindow_button);
             button.setText("Add");
         }
         else if (mode == 2)
         {
+            /// Prepare window for finding worker
             setTitle("Find Worker");
             Button button = (Button) findViewById(R.id.infoworkerwindow_button);
             button.setText("Find");
         }
         else if (mode == 3)
         {
+            /// Prepare window for editing worker
             setTitle("Edit Worker");
             Button button = (Button) findViewById(R.id.infoworkerwindow_button);
             button.setText("Edit");
@@ -72,6 +75,7 @@ public class InfoWorkerWindow extends AppCompatActivity {
         }
     }
 
+    /// When final button clicked, get all data from fields and throw it back to main activity
     public void onClick(View view) {
         EditText textBox;
 
@@ -138,6 +142,7 @@ public class InfoWorkerWindow extends AppCompatActivity {
             return;
         }
 
+        //Box data and throw to activity
         Intent data = new Intent();
         data.putExtra("mode", mode);
         data.putExtra("name", name);
